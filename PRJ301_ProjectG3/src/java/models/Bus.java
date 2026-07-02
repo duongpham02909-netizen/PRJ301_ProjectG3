@@ -10,6 +10,11 @@ public class Bus {
     private int driverId;
     private String status;
     private String createdDate;
+    
+    // Helper fields for display in admin panel
+    private String routeName;
+    private String driverName;
+    private String managerName;
 
     public Bus() {
     }
@@ -95,5 +100,29 @@ public class Bus {
 
     public void setCreatedDate(String createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public String getRouteName() {
+        return routeName;
+    }
+
+    public void setRouteName(String routeName) {
+        this.routeName = routeName;
+    }
+
+    public String getDriverName() {
+        return driverName;
+    }
+
+    public void setDriverName(String driverName) {
+        this.driverName = driverName;
+    }
+
+    public String getManagerName() {
+        return managerName;
+    }
+
+    public void setManagerName(String managerName) {
+        this.managerName = managerName;
     }
 }

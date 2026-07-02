@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -65,20 +66,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>BUS_001</td>
-                        <td>29F-12345</td>
-                        <td>45</td>
-                        <td>Tuyến A</td>
-                        <td>Phạm Thái Driver</td>
-                        <td>Lê Văn Manager</td>
-                        <td><span style="background: #d4edda; padding: 5px 10px; border-radius: 3px;">Active</span></td>
-                        <td>
-                            <button class="btn btn-primary" onclick="openModal('editBusModal')">Sửa</button>
-                            <button class="btn btn-danger">Xóa</button>
-                        </td>
-                    </tr>
+                    <c:forEach var="b" items="${buses}">
+                        <tr>
+                            <td>${b.busId}</td>
+                            <td>${b.busCode}</td>
+                            <td>${b.licensePlate}</td>
+                            <td>${b.capacity}</td>
+                            <td>${b.routeName != null ? b.routeName : 'N/A'}</td>
+                            <td>${b.driverName != null ? b.driverName : 'N/A'}</td>
+                            <td>${b.managerName != null ? b.managerName : 'N/A'}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${b.status == 'active'}">
+                                        <span style="background: #d4edda; padding: 5px 10px; border-radius: 3px;">Active</span>
+                                    </c:when>
+                                    <c:when test="${b.status == 'maintenance'}">
+                                        <span style="background: #fff3cd; padding: 5px 10px; border-radius: 3px;">Bảo Dưỡng</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span style="background: #f8d7da; padding: 5px 10px; border-radius: 3px;">Inactive</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary" onclick="openEditBusModal('${b.busId}', '${b.licensePlate}', '${b.capacity}', '${b.status}', '${b.routeId}', '${b.driverId}', '${b.managerId}')">Sửa</button>
+                                <button class="btn btn-danger" onclick="confirmDeleteBus('${b.busId}', '${b.busCode}')">Xóa</button>
+                            </td>
+                        </tr>
+                    </c:forEach>
                 </tbody>
             </table>
         </div>
@@ -109,22 +124,27 @@
                     <label>Tuyến Xe</label>
                     <select name="routeId" required>
                         <option value="">-- Chọn tuyến --</option>
-                        <option value="1">Tuyến A</option>
-                        <option value="2">Tuyến B</option>
+                        <c:forEach var="r" items="${routes}">
+                            <option value="${r.routeId}">${r.routeName} (${r.routeCode})</option>
+                        </c:forEach>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Lái Xe</label>
                     <select name="driverId" required>
                         <option value="">-- Chọn lái xe --</option>
-                        <option value="5">Phạm Thái Driver</option>
+                        <c:forEach var="d" items="${drivers}">
+                            <option value="${d.userId}">${d.fullName}</option>
+                        </c:forEach>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Quản Lý Xe</label>
                     <select name="managerId" required>
                         <option value="">-- Chọn quản lý --</option>
-                        <option value="4">Lê Văn Manager</option>
+                        <c:forEach var="m" items="${managers}">
+                            <option value="${m.userId}">${m.fullName}</option>
+                        </c:forEach>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-success">Lưu</button>
@@ -142,19 +162,46 @@
             </div>
             <form method="POST">
                 <input type="hidden" name="action" value="update">
-                <input type="hidden" name="busId" value="1">
+                <input type="hidden" name="busId" id="edit_busId">
                 <div class="form-group">
                     <label>Biển Số</label>
-                    <input type="text" name="licensePlate" value="29F-12345" required>
+                    <input type="text" name="licensePlate" id="edit_licensePlate" required>
                 </div>
                 <div class="form-group">
                     <label>Sức Chứa</label>
-                    <input type="number" name="capacity" value="45" required>
+                    <input type="number" name="capacity" id="edit_capacity" required>
+                </div>
+                <div class="form-group">
+                    <label>Tuyến Xe</label>
+                    <select name="routeId" id="edit_routeId" required>
+                        <option value="">-- Chọn tuyến --</option>
+                        <c:forEach var="r" items="${routes}">
+                            <option value="${r.routeId}">${r.routeName} (${r.routeCode})</option>
+                        </c:forEach>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Lái Xe</label>
+                    <select name="driverId" id="edit_driverId" required>
+                        <option value="">-- Chọn lái xe --</option>
+                        <c:forEach var="d" items="${drivers}">
+                            <option value="${d.userId}">${d.fullName}</option>
+                        </c:forEach>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quản Lý Xe</label>
+                    <select name="managerId" id="edit_managerId" required>
+                        <option value="">-- Chọn quản lý --</option>
+                        <c:forEach var="m" items="${managers}">
+                            <option value="${m.userId}">${m.fullName}</option>
+                        </c:forEach>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Trạng Thái</label>
-                    <select name="status">
-                        <option value="active" selected>Active</option>
+                    <select name="status" id="edit_status">
+                        <option value="active">Active</option>
                         <option value="maintenance">Bảo Dưỡng</option>
                         <option value="inactive">Inactive</option>
                     </select>
@@ -166,8 +213,30 @@
     </div>
 
     <script>
-        function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
-        function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+        function openModal(modalId) { 
+            document.getElementById(modalId).classList.add('active'); 
+        }
+        
+        function closeModal(modalId) { 
+            document.getElementById(modalId).classList.remove('active'); 
+        }
+
+        function openEditBusModal(id, licensePlate, capacity, status, routeId, driverId, managerId) {
+            document.getElementById('edit_busId').value = id;
+            document.getElementById('edit_licensePlate').value = licensePlate;
+            document.getElementById('edit_capacity').value = capacity;
+            document.getElementById('edit_status').value = status;
+            document.getElementById('edit_routeId').value = routeId;
+            document.getElementById('edit_driverId').value = driverId;
+            document.getElementById('edit_managerId').value = managerId;
+            openModal('editBusModal');
+        }
+
+        function confirmDeleteBus(id, busCode) {
+            if (confirm("Bạn có chắc chắn muốn xóa xe '" + busCode + "' không?")) {
+                window.location.href = "buses?action=delete&busId=" + id;
+            }
+        }
     </script>
 </body>
 </html>

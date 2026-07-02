@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -68,42 +69,44 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>admin01</td>
-                        <td>admin@school.edu</td>
-                        <td>Quản Trị Viên</td>
-                        <td><span style="background: #d1ecf1; padding: 5px 10px; border-radius: 3px;">Admin</span></td>
-                        <td><span style="background: #d4edda; padding: 5px 10px; border-radius: 3px;">Active</span></td>
-                        <td>
-                            <button class="btn btn-primary" onclick="openModal('editUserModal')">Sửa</button>
-                            <button class="btn btn-danger">Xóa</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>parent01</td>
-                        <td>parent01@email.com</td>
-                        <td>Nguyễn Văn A</td>
-                        <td><span style="background: #fff3cd; padding: 5px 10px; border-radius: 3px;">Parent</span></td>
-                        <td><span style="background: #d4edda; padding: 5px 10px; border-radius: 3px;">Active</span></td>
-                        <td>
-                            <button class="btn btn-primary" onclick="openModal('editUserModal')">Sửa</button>
-                            <button class="btn btn-danger">Xóa</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>manager01</td>
-                        <td>manager01@school.edu</td>
-                        <td>Lê Văn Manager</td>
-                        <td><span style="background: #d1ecf1; padding: 5px 10px; border-radius: 3px;">Manager</span></td>
-                        <td><span style="background: #d4edda; padding: 5px 10px; border-radius: 3px;">Active</span></td>
-                        <td>
-                            <button class="btn btn-primary" onclick="openModal('editUserModal')">Sửa</button>
-                            <button class="btn btn-danger">Xóa</button>
-                        </td>
-                    </tr>
+                    <c:forEach var="u" items="${users}">
+                        <tr>
+                            <td>${u.userId}</td>
+                            <td>${u.username}</td>
+                            <td>${u.email}</td>
+                            <td>${u.fullName}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${u.role == 'admin'}">
+                                        <span style="background: #d1ecf1; padding: 5px 10px; border-radius: 3px;">Admin</span>
+                                    </c:when>
+                                    <c:when test="${u.role == 'manager'}">
+                                        <span style="background: #d1ecf1; padding: 5px 10px; border-radius: 3px;">Manager</span>
+                                    </c:when>
+                                    <c:when test="${u.role == 'driver'}">
+                                        <span style="background: #e2e3e5; padding: 5px 10px; border-radius: 3px;">Driver</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span style="background: #fff3cd; padding: 5px 10px; border-radius: 3px;">Parent</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${u.status == 'active'}">
+                                        <span style="background: #d4edda; padding: 5px 10px; border-radius: 3px;">Active</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span style="background: #f8d7da; padding: 5px 10px; border-radius: 3px;">Inactive</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary" onclick="openEditUserModal('${u.userId}', '${u.email}', '${u.fullName}', '${u.status}', '${u.role}')">Sửa</button>
+                                <button class="btn btn-danger" onclick="confirmDeleteUser('${u.userId}', '${u.username}')">Xóa</button>
+                            </td>
+                        </tr>
+                    </c:forEach>
                 </tbody>
             </table>
         </div>
@@ -158,18 +161,27 @@
             </div>
             <form method="POST">
                 <input type="hidden" name="action" value="update">
-                <input type="hidden" name="userId" value="1">
+                <input type="hidden" name="userId" id="edit_userId">
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" name="email" value="admin@school.edu" required>
+                    <input type="email" name="email" id="edit_email" required>
                 </div>
                 <div class="form-group">
                     <label>Tên Đầy Đủ</label>
-                    <input type="text" name="fullName" value="Quản Trị Viên" required>
+                    <input type="text" name="fullName" id="edit_fullName" required>
+                </div>
+                <div class="form-group">
+                    <label>Vai Trò</label>
+                    <select name="role" id="edit_role" required>
+                        <option value="parent">Phụ Huynh</option>
+                        <option value="manager">Quản Lý Xe</option>
+                        <option value="driver">Lái Xe</option>
+                        <option value="admin">Admin</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Trạng Thái</label>
-                    <select name="status">
+                    <select name="status" id="edit_status">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
@@ -184,8 +196,24 @@
         function openModal(modalId) {
             document.getElementById(modalId).classList.add('active');
         }
+        
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openEditUserModal(id, email, fullName, status, role) {
+            document.getElementById('edit_userId').value = id;
+            document.getElementById('edit_email').value = email;
+            document.getElementById('edit_fullName').value = fullName;
+            document.getElementById('edit_status').value = status;
+            document.getElementById('edit_role').value = role;
+            openModal('editUserModal');
+        }
+
+        function confirmDeleteUser(id, username) {
+            if (confirm("Bạn có chắc chắn muốn xóa người dùng '" + username + "' không?")) {
+                window.location.href = "users?action=delete&userId=" + id;
+            }
         }
     </script>
 </body>

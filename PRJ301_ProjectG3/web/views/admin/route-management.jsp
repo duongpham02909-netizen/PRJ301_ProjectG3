@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,7 +26,7 @@
         .modal-close { float: right; cursor: pointer; font-size: 24px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
-        .form-group input, .form-group textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
         .modal-header { margin-bottom: 20px; }
     </style>
 </head>
@@ -61,30 +62,34 @@
                         <th>Hành Động</th>
                     </tr>
                 </thead>
-               <tbody>
-    <c:forEach var="route" items="${routes}">
-        <tr>
-            <td>${route.routeId}</td>
-            <td>${route.routeName}</td>
-            <td>${route.routeCode}</td>
-            <td>${route.description}</td>
-            <td>
-                <span style="background: #d4edda; padding: 5px 10px; border-radius: 3px;">
-                    ${route.status}
-                </span>
-            </td>
-            <td>
-                <button class="btn btn-primary">
-                    Sửa
-                </button>
-
-                <button class="btn btn-danger">
-                    Xóa
-                </button>
-            </td>
-        </tr>
-    </c:forEach>
-</tbody>
+                <tbody>
+                    <c:forEach var="route" items="${routes}">
+                        <tr>
+                            <td>${route.routeId}</td>
+                            <td>${route.routeName}</td>
+                            <td>${route.routeCode}</td>
+                            <td>${route.description}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${route.status == 'active'}">
+                                        <span style="background: #d4edda; padding: 5px 10px; border-radius: 3px;">Active</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span style="background: #f8d7da; padding: 5px 10px; border-radius: 3px;">Inactive</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary" onclick="openEditRouteModal('${route.routeId}', '${route.routeName}', '${route.description}', '${route.status}')">
+                                    Sửa
+                                </button>
+                                <button class="btn btn-danger" onclick="confirmDeleteRoute('${route.routeId}', '${route.routeName}')">
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
             </table>
         </div>
     </div>
@@ -125,14 +130,21 @@
             </div>
             <form method="POST">
                 <input type="hidden" name="action" value="update">
-                <input type="hidden" name="routeId" value="1">
+                <input type="hidden" name="routeId" id="edit_routeId">
                 <div class="form-group">
                     <label>Tên Tuyến</label>
-                    <input type="text" name="routeName" value="Tuyến A - Tây Hồ" required>
+                    <input type="text" name="routeName" id="edit_routeName" required>
                 </div>
                 <div class="form-group">
                     <label>Mô Tả</label>
-                    <textarea name="description" rows="4">Tuyến đưa đón từ quận Tây Hồ</textarea>
+                    <textarea name="description" id="edit_description" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Trạng Thái</label>
+                    <select name="status" id="edit_status">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
                 </div>
                 <button type="submit" class="btn btn-success">Lưu</button>
                 <button type="button" class="btn btn-primary" onclick="closeModal('editRouteModal')">Hủy</button>
@@ -141,8 +153,27 @@
     </div>
 
     <script>
-        function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
-        function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+        function openModal(modalId) { 
+            document.getElementById(modalId).classList.add('active'); 
+        }
+        
+        function closeModal(modalId) { 
+            document.getElementById(modalId).classList.remove('active'); 
+        }
+
+        function openEditRouteModal(id, name, desc, status) {
+            document.getElementById('edit_routeId').value = id;
+            document.getElementById('edit_routeName').value = name;
+            document.getElementById('edit_description').value = desc;
+            document.getElementById('edit_status').value = status;
+            openModal('editRouteModal');
+        }
+
+        function confirmDeleteRoute(id, name) {
+            if (confirm("Bạn có chắc chắn muốn xóa tuyến '" + name + "' không?")) {
+                window.location.href = "routes?action=delete&routeId=" + id;
+            }
+        }
     </script>
 </body>
 </html>
