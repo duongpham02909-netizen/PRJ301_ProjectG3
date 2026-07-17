@@ -4,81 +4,253 @@
     Author     : Admin
 --%>
 
-﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%
+    String error = (String) request.getAttribute("error");
+    String success = (String) request.getAttribute("success");
+    String info = (String) request.getAttribute("info");
+    String username = (String) request.getAttribute("username");
+
+    if (username == null) {
+        username = "";
+    }
+%>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Login - Bus Management</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
         <style>
-            body {
-                min-height: 100vh;
+            *{
+                margin:0;
+                padding:0;
+                box-sizing:border-box;
+                font-family:Arial;
             }
-            .auth-image {
-                background: linear-gradient(135deg, rgba(44,82,130,0.9), rgba(49,130,206,0.85)),
-                    url('https://img.magnific.com/hinh-chup-mien-phi/xe-buyt-truong-hoc-mau-vang_268835-4931.jpg?semt=ais_hybrid&w=740&q=80') center/cover;
-                min-height: 100vh;
+
+            body{
+                min-height:100vh;
+                background:#f8f9fa;
+            }
+
+            .container{
+                display:flex;
+                min-height:100vh;
+            }
+
+            .left{
+                width:50%;
+                background:
+                    linear-gradient(rgba(44,82,130,.9),rgba(49,130,206,.85)),
+                    url('https://img.magnific.com/hinh-chup-mien-phi/xe-buyt-truong-hoc-mau-vang_268835-4931.jpg?semt=ais_hybrid&w=740&q=80');
+                background-size:cover;
+                background-position:center;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                color:white;
+                text-align:center;
+                padding:40px;
+            }
+
+            .left-content{
+                max-width:350px;
+            }
+
+            .left h1{
+                margin-bottom:20px;
+            }
+
+            .left p{
+                line-height:1.6;
+            }
+
+            .right{
+                width:50%;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+            }
+
+            .login-box{
+                width:400px;
+            }
+
+            .logo{
+                text-align:center;
+                margin-bottom:20px;
+            }
+
+            .logo a{
+                text-decoration:none;
+                color:#0d6efd;
+                font-size:24px;
+                font-weight:bold;
+            }
+
+            .card{
+                background:white;
+                padding:30px;
+                border-radius:8px;
+                box-shadow:0 0 15px rgba(0,0,0,.15);
+            }
+
+            .card h2{
+                text-align:center;
+                margin-bottom:25px;
+            }
+
+            .form-group{
+                margin-bottom:15px;
+            }
+
+            label{
+                display:block;
+                margin-bottom:5px;
+                font-weight:bold;
+            }
+
+            input[type=text],
+            input[type=password]{
+                width:100%;
+                padding:10px;
+                border:1px solid #ccc;
+                border-radius:4px;
+            }
+
+            .btn{
+                width:100%;
+                padding:12px;
+                border:none;
+                background:#0d6efd;
+                color:white;
+                font-size:16px;
+                border-radius:4px;
+                cursor:pointer;
+            }
+
+            .btn:hover{
+                background:#0b5ed7;
+            }
+
+            .alert{
+                padding:10px;
+                margin-bottom:15px;
+                border-radius:4px;
+            }
+
+            .danger{
+                background:#f8d7da;
+                color:#842029;
+            }
+
+            .success{
+                background:#d1e7dd;
+                color:#0f5132;
+            }
+
+            .info{
+                background:#cff4fc;
+                color:#055160;
             }
         </style>
+
     </head>
+
     <body>
-        <div class="row g-0 min-vh-100">
-            <!-- Left image panel -->
-            <div class="col-lg-6 auth-image d-none d-lg-flex flex-column justify-content-center align-items-center p-5 text-white">
-                <h1 class="fs-2 fw-bold mb-3 text-center">Welcome Back!</h1>
-                <p class="text-center opacity-90" style="max-width:350px; line-height:1.6;">
-                    Login to access the School Bus Management System and manage transportation information.
-                </p>
+
+        <div class="container">
+
+            <div class="left">
+                <div class="left-content">
+                    <h1>Welcome Back!</h1>
+
+                    <p>
+                        Login to access the School Bus Management System
+                        and manage transportation information.
+                    </p>
+                </div>
             </div>
 
-            <!-- Right form panel -->
-            <div class="col-lg-6 d-flex align-items-center justify-content-center p-4 bg-light">
-                <div style="width:100%; max-width:400px;">
-                    <div class="text-center mb-4">
-                        <a href="${pageContext.request.contextPath}/" class="text-primary fw-bold fs-5 text-decoration-none">
+            <div class="right">
+
+                <div class="login-box">
+
+                    <div class="logo">
+                        <a href="<%=request.getContextPath()%>/">
                             Bus Management System
                         </a>
                     </div>
 
-                    <div class="card shadow-sm border-0 p-4">
-                        <h2 class="text-center mb-4 fs-5 fw-bold text-dark">Sign In</h2>
+                    <div class="card">
 
-                        <c:if test="${not empty error}">
-                            <div class="alert alert-danger">${error}</div>
-                        </c:if>
-                        <c:if test="${not empty success}">
-                            <div class="alert alert-success">${success}</div>
-                        </c:if>
-                        <c:if test="${not empty info}">
-                            <div class="alert alert-info">${info}</div>
-                        </c:if>
+                        <h2>Sign In</h2>
 
-                        <form method="post" action="${pageContext.request.contextPath}/login">
-                            <div class="mb-3">
-                                <label for="username" class="form-label fw-medium small">Username</label>
-                                <input type="text" id="username" name="username"
-                                       value="${username}" required class="form-control"
-                                       placeholder="Enter your username" autofocus>
+                        <% if (error != null) { %>
+                        <div class="alert danger">
+                            <%=error%>
+                        </div>
+                        <% } %>
+
+                        <% if (success != null) { %>
+                        <div class="alert success">
+                            <%=success%>
+                        </div>
+                        <% } %>
+
+                        <% if (info != null) { %>
+                        <div class="alert info">
+                            <%=info%>
+                        </div>
+                        <% } %>
+
+                        <form action="<%=request.getContextPath()%>/login" method="post">
+
+                            <div class="form-group">
+                                <label>Username</label>
+
+                                <input
+                                    type="text"
+                                    name="username"
+                                    value="<%=username%>"
+                                    placeholder="Enter your username"
+                                    required
+                                    autofocus>
                             </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label fw-medium small">Password</label>
-                                <input type="password" id="password" name="password" required class="form-control"
-                                       placeholder="Enter your password">
+
+                            <div class="form-group">
+                                <label>Password</label>
+
+                                <input
+                                    type="password"
+                                    name="password"
+                                    placeholder="Enter your password"
+                                    required>
                             </div>
-                            <div class="d-grid mt-4">
-                                <button type="submit" class="btn btn-primary fw-semibold">Login</button>
-                            </div>
+
+                            <input class="btn" type="submit" value="Login">
+
                         </form>
 
                     </div>
+
                 </div>
+
             </div>
+
+            <div class="demo-credentials">
+                <strong>Tài khoản demo kiểm thử:</strong>
+                <p>🔑 <strong>Admin:</strong> admin01 / admin123456</p>
+                <p>🔑 <strong>Manager:</strong> manager01 / manager123456</p>
+                <p>🔑 <strong>Parent:</strong> parent01 / parent123456</p>
+                <p>🔑 <strong>Driver:</strong> driver01 / driver123456</p>
+            </div>
+
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     </body>
 </html>
 
